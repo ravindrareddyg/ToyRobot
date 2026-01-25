@@ -88,7 +88,7 @@ ToyRobot/
 ### Option 1: Clone using Git (recommended)
 
 ```bash
-git clone https://github.com/ravindrareddyg/ToyRobot
+git clone https://github.com/ravindrareddyg/ToyRobot.git
 cd ToyRobot
 ```
 
