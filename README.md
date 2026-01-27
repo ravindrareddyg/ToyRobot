@@ -79,7 +79,7 @@ ToyRobot/
 - **Separation by responsibility** — `Commands`, `Models`, and `Services` clearly define boundaries without over-engineering.
 - **Explicit control flow** — validation and state transitions are deliberate and easy to debug.
 - **Test-driven validation** — business rules are verified using xUnit tests.
-- **Disciplined CLI behaviour** — prompts and errors go to `stderr`, while `REPORT` is the only command that writes to `stdout`.
+- **Disciplined CLI behaviour** — while `REPORT` is the only command that writes to `stdout`.
 
 ---
 
@@ -137,39 +137,17 @@ dotnet run --project ToyRobot.Cli
 4. In Solution Explorer, right-click **ToyRobot** and choose **Set as Startup Project**
 5. Press `Ctrl + F5` to run without debugging
 
+### Running with file input (Windows CMD)
+
+```
+cmd
+type ToyRobot.Cli\input.txt | dotnet run --project ToyRobot.Cli\ToyRobot.Cli.csproj
+```
 ---
 
 ## CLI Usage
 
-The simulator runs interactively:
-
-```
-toyrobot[unplaced]> PLACE 0,0,NORTH
-toyrobot[placed]> MOVE
-toyrobot[placed]> REPORT
-0,1,NORTH
-```
-
-### Prompt States
-
-- `toyrobot[unplaced]>` → Robot has not been placed
-- `toyrobot[placed]>` → Robot is placed and active
-
-### Error Feedback (stderr only)
-
-Examples:
-
-```
-Cannot PLACE robot there: it would fall off the table
-Cannot MOVE robot: it would fall off the table
-robot not placed (use PLACE X,Y,FACING)
-```
-
-### Help
-
-```
-Type `help` at any time to see available commands.
-```
+The simulator runs interactively, piped and file import
 
 ---
 
