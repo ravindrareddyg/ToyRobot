@@ -88,7 +88,7 @@ ToyRobot/
 ### Option 1: Clone using Git (recommended)
 
 ```bash
-git clone https://github.com/ravindrareddyg/ToyRobot
+git clone https://github.com/ravindrareddyg/ToyRobot.git
 cd ToyRobot
 ```
 
@@ -168,6 +168,16 @@ Run all tests:
 dotnet test
 ```
 
+## Additional Notes
+If you encounter errors related to NuGet packages or the .NET SDK during build or test execution, run the following commands inside the project folder where the error occurs.
+For example, if the error appears in ToyRobot.Test, navigate to that folder first
+
+```
+cd ToyRobot.Test                --change based on folder
+dotnet restore
+dotnet build
+dotnet test
+```
 ---
 
 > This solution intentionally uses a single executable project with clear folder-based separation to keep the design simple and easy to review. The boundaries are explicit and can be split into separate projects if the system grows.
