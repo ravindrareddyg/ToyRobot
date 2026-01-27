@@ -1,101 +1,66 @@
 ﻿using System;
 using ToyRobot.Commands;
-using ToyRobot.Models;
 
 namespace ToyRobot.Services;
 
 public interface ICommandProcessor
 {
-    string? ReadLine();
-    void WriteStdOutLine(string value);
-    void WriteStdErr(string value);
-    void WriteStdErrLine(string value);
-    void RunInteractive();
+    void Run();
 }
 
-public class CommandProcessor : ICommandProcessor
+public sealed class CommandProcessor : ICommandProcessor
 {
     private readonly IRobotSimulator _robotSimulator;
     private readonly ICommandParser _commandParser;
 
-    public CommandProcessor(IRobotSimulator robotSimulator, ICommandParser commandParser)
+    public CommandProcessor(
+        IRobotSimulator robotSimulator,
+        ICommandParser commandParser)
     {
         _robotSimulator = robotSimulator;
         _commandParser = commandParser;
     }
 
-    public string? ReadLine() => Console.ReadLine();
-    public void WriteStdOutLine(string value) => Console.Out.WriteLine(value);
-    public void WriteStdErr(string value) => Console.Error.Write(value);
-    public void WriteStdErrLine(string value) => Console.Error.WriteLine(value);
-
-    public void RunInteractive()
+    public void Run()
     {
-        PrintWelcome();
+        var isRedirected = Console.IsInputRedirected;
 
-        while (true)
+        if (isRedirected)
         {
-            WriteStdErr(GetPrompt(_robotSimulator.State));
-            var line = ReadLine();
-            if (line is null) return;
+            RunFromStdIn();
+            return;
+        }
 
-            var trimmed = line.Trim();
+        RunInteractive();
+    }
 
-            if (trimmed.Equals("EXIT", StringComparison.OrdinalIgnoreCase) ||
-                trimmed.Equals("QUIT", StringComparison.OrdinalIgnoreCase))
-                return;
-
-            if (trimmed.Equals("HELP", StringComparison.OrdinalIgnoreCase))
-            {
-                PrintHelp();
-                continue;
-            }
-
-            if (!_commandParser.TryParse(trimmed, out var cmd, out var parseError))
-            {
-                if (parseError == "HELP")
-                {
-                    PrintHelp();
-                    continue;
-                }
-
-                WriteStdErrLine(parseError ?? "Invalid command");
-                continue;
-            }
-
-            var outcome = _robotSimulator.Apply(cmd!);
-
-            if (outcome.IsReport && !string.IsNullOrWhiteSpace(outcome.ReportText))
-            {
-                WriteStdOutLine(outcome.ReportText!);
-                continue;
-            }
-
-            if (!outcome.Success && !string.IsNullOrWhiteSpace(outcome.Message))
-                WriteStdErrLine(outcome.Message!);
+    private void RunFromStdIn()
+    {
+        string? line;
+        while ((line = Console.ReadLine()) != null)
+        {
+            ProcessLine(line);
         }
     }
 
-    private void PrintWelcome()
+    private void RunInteractive()
     {
-        WriteStdErrLine("Toy Robot Simulator");
-        WriteStdErrLine("Type 'help' for commands. Type 'exit' to quit.");
-        WriteStdErrLine(string.Empty);
+        string? line;
+        while ((line = Console.ReadLine()) != null)
+        {
+            ProcessLine(line);
+        }
     }
 
-    private void PrintHelp()
+    private void ProcessLine(string line)
     {
-        WriteStdErrLine("Commands:");
-        WriteStdErrLine("  PLACE X,Y,Facing   (Facing: NORTH|EAST|SOUTH|WEST)");
-        WriteStdErrLine("  MOVE");
-        WriteStdErrLine("  LEFT");
-        WriteStdErrLine("  RIGHT");
-        WriteStdErrLine("  REPORT");
-        WriteStdErrLine("  help");
-        WriteStdErrLine("  exit");
-        WriteStdErrLine(string.Empty);
-    }
+        if (!_commandParser.TryParse(line, out var command) || command is null)
+            return;
+        var outcome = _robotSimulator.Apply(command);
 
-    private static string GetPrompt(RobotState state) =>
-    state.IsPlaced ? "toyrobot[placed]> " : "toyrobot[unplaced]> ";
+        if (outcome.IsReport && !string.IsNullOrWhiteSpace(outcome.ReportText))
+        {
+            Console.Out.WriteLine(outcome.ReportText);
+        }
+    }
 }

@@ -26,19 +26,19 @@ public class RobotCommandHandler : IRobotCommandHandler
             case SimCommandType.Report:
                 return Report(state);
             default:
-                return new CommandResult(state, CommandOutcome.Error("Unsupported command"));
+                return new CommandResult(state, CommandOutcome.Ok());
         }
     }
 
     private static CommandResult Place(RobotState state, Tabletop table, ParsedCommand cmd)
     {
         if (cmd.X is null || cmd.Y is null || cmd.Facing is null)
-            return new CommandResult(state, CommandOutcome.Error("Invalid PLACE command. Expected: PLACE X,Y,Facing"));
+            return new CommandResult(state, CommandOutcome.Ok());
 
         var pos = new Position(cmd.X.Value, cmd.Y.Value);
 
         if (!table.IsValid(pos))
-            return new CommandResult(state, CommandOutcome.Error("Cannot PLACE robot there: it would fall off the table"));
+            return new CommandResult(state, CommandOutcome.Ok());
 
         return new CommandResult(RobotState.Placed(pos, cmd.Facing.Value), CommandOutcome.Ok());
     }
@@ -48,14 +48,14 @@ public class RobotCommandHandler : IRobotCommandHandler
         if (!state.IsPlaced || state.Position is null || state.Facing is null)
             return new CommandResult(
                 state, 
-                CommandOutcome.Error("Cannot MOVE robot: it has not been placed"));
+                CommandOutcome.Ok());
 
         var next = NextPosition(state.Position.Value, state.Facing.Value);
 
         if (!table.IsValid(next))
             return new CommandResult(
                 state, 
-                CommandOutcome.Error("Cannot MOVE robot: it would fall off the table"));
+                CommandOutcome.Ok());
 
         return new CommandResult(state with { Position = next }, CommandOutcome.Ok());
     }
@@ -65,7 +65,7 @@ public class RobotCommandHandler : IRobotCommandHandler
         if (!state.IsPlaced || state.Facing is null)
             return new CommandResult(
                 state,
-                CommandOutcome.Error("Cannot turn LEFT: it has not been placed"));
+                CommandOutcome.Ok());
 
         return new CommandResult(state.RotateLeft(), CommandOutcome.Ok());
     }
@@ -75,7 +75,7 @@ public class RobotCommandHandler : IRobotCommandHandler
         if (!state.IsPlaced || state.Facing is null)
             return new CommandResult(
                 state,
-                CommandOutcome.Error("Cannot turn RIGHT: it has not been placed"));
+                CommandOutcome.Ok());
 
         return new CommandResult(state.RotateRight(), CommandOutcome.Ok());
     }
@@ -85,7 +85,7 @@ public class RobotCommandHandler : IRobotCommandHandler
         if (!state.IsPlaced || state.Position is null || state.Facing is null)
             return new CommandResult(
                 state, 
-                CommandOutcome.Error("Cannot REPORT: it has not been placed"));
+                CommandOutcome.Ok());
 
         var p = state.Position.Value;
         var Direction = state.Facing.Value.ToString().ToUpperInvariant();

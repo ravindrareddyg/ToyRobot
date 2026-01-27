@@ -15,4 +15,4 @@ services.AddSingleton<IRobotSimulator, RobotSimulator>();
 services.AddSingleton<ICommandProcessor, CommandProcessor>();
 
 var provider = services.BuildServiceProvider();
-provider.GetRequiredService<ICommandProcessor>().RunInteractive();
+provider.GetRequiredService<ICommandProcessor>().Run();

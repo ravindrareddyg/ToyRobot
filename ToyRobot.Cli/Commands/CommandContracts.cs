@@ -20,12 +20,10 @@ public record ParsedCommand(
 
 public record CommandOutcome(
     bool Success,
-    string? Message = null,
     bool IsReport = false,
     string? ReportText = null)
 {
     public static CommandOutcome Ok() => new(true);
-    public static CommandOutcome Error(string msg) => new(false, msg);
     public static CommandOutcome Report(string text) => new(true, IsReport: true, ReportText: text);
 }
 
